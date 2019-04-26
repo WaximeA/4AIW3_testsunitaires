@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * Class User
+ *
+ * @category  Class
+ * @package   User
+ */
 class User
 {
     /**
@@ -28,13 +34,17 @@ class User
     /**
      * User constructor
      *
-     * @param $firstName
-     * @param $lastName
-     * @param $email
-     * @param $age
+     * @param string $firstName
+     * @param string $lastName
+     * @param string $email
+     * @param int    $age
      */
-    public function __construct($firstName, $lastName, $email, $age)
-    {
+    public function __construct(
+        string $firstName,
+        string $lastName,
+        string $email,
+        int $age
+    ) {
         $this->firstName = $firstName;
         $this->lastName  = $lastName;
         $this->email     = $email;
@@ -57,9 +67,13 @@ class User
      * @param string $firstName
      *
      * @return void
+     * @throws Exception
      */
     public function setFirstName(string $firstName): void
     {
+        if (!$firstName) {
+            throw new Exception('Missing firstname');
+        }
         $this->firstName = $firstName;
     }
 
@@ -79,9 +93,13 @@ class User
      * @param string $lastName
      *
      * @return void
+     * @throws Exception
      */
     public function setLastName(string $lastName): void
     {
+        if (!$lastName) {
+            throw new Exception('Missing lastname');
+        }
         $this->lastName = $lastName;
     }
 
@@ -101,9 +119,13 @@ class User
      * @param string $email
      *
      * @return void
+     * @throws Exception
      */
     public function setEmail(string $email): void
     {
+        if (!$this->validateEmail($email)) {
+            throw new Exception('You need a valid email address');
+        }
         $this->email = $email;
     }
 
@@ -123,9 +145,14 @@ class User
      * @param int $age
      *
      * @return void
+     * @throws Exception
      */
     public function setAge(int $age): void
     {
+        if (!$this->validateAge($age)) {
+            throw new Exception('Age cannot be under 13 years old');
+        }
+
         $this->age = $age;
     }
 
@@ -136,7 +163,9 @@ class User
      */
     public function isValid()
     {
-        if (!$this->validateEmail($this->email) || !$this->validateAge($this->age) || !$this->validateName($this->firstName, $this->lastName)) {
+        if (empty($this->getFirstName()) || empty($this->getLastName()) || empty(
+            $this->getEmail()
+            ) || empty($this->getAge())) {
             return false;
         }
 
@@ -169,23 +198,6 @@ class User
     public function validateAge($age)
     {
         if ($age < self::MAX_AGE_REQUIRED) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Description validateName function
-     *
-     * @param $firstName
-     * @param $lastName
-     *
-     * @return bool
-     */
-    public function validateName($firstName, $lastName)
-    {
-        if (!$firstName || !$lastName) {
             return false;
         }
 
