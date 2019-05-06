@@ -10,9 +10,9 @@ class Exchange
     private $startDate;
     /** @var DateTime $endDate */
     private $endDate;
-    /** @var  $emailSender */
+    /** @var EmailSender $emailSender */
     private $emailSender;
-    /** @var  $dbConnexion */
+    /** @var DatabaseConnection $dbConnexion */
     private $dbConnexion;
 
     /**
@@ -30,8 +30,8 @@ class Exchange
         Product $product,
         DateTime $startDate,
         DateTime $endDate,
-        $emailSender,
-        $dbConnexion
+        EmailSender $emailSender,
+        DatabaseConnection $dbConnexion
     ) {
         $this->receiver    = $receiver;
         $this->product     = $product;
@@ -64,8 +64,7 @@ class Exchange
         if (!$receiver->isValid()) {
             throw new Exception('The revceiver is not valid');
         } elseif ($receiver->getAge() < 18) {
-            // send email
-            $this->emailSender->sendEmail($receiver->getEmail());
+            $this->emailSender->sendEmail($receiver->getEmail(), 'Your minor, that\' too bad...');
         }
 
         $this->receiver = $receiver;
@@ -145,9 +144,9 @@ class Exchange
     /**
      * Description getEmailSender function
      *
-     * @return mixed
+     * @return EmailSender
      */
-    public function getEmailSender()
+    public function getEmailSender(): EmailSender
     {
         return $this->emailSender;
     }
@@ -155,11 +154,11 @@ class Exchange
     /**
      * Description setEmailSender function
      *
-     * @param mixed $emailSender
+     * @param EmailSender $emailSender
      *
      * @return void
      */
-    public function setEmailSender($emailSender): void
+    public function setEmailSender(EmailSender $emailSender): void
     {
         $this->emailSender = $emailSender;
     }
@@ -167,9 +166,9 @@ class Exchange
     /**
      * Description getDbConnexion function
      *
-     * @return mixed
+     * @return DatabaseConnection
      */
-    public function getDbConnexion()
+    public function getDbConnexion(): DatabaseConnection
     {
         return $this->dbConnexion;
     }
@@ -177,11 +176,11 @@ class Exchange
     /**
      * Description setDbConnexion function
      *
-     * @param mixed $dbConnexion
+     * @param DatabaseConnection $dbConnexion
      *
      * @return void
      */
-    public function setDbConnexion($dbConnexion): void
+    public function setDbConnexion(DatabaseConnection $dbConnexion): void
     {
         $this->dbConnexion = $dbConnexion;
     }
@@ -199,12 +198,15 @@ class Exchange
 
     public function save()
     {
-        if (empty($this->receiver) || empty($this->product) ||  !$this->isValidDate($this->startDate, $this->endDate)) {
-            return false;
+        if (!empty($this->receiver) || !empty($this->product) ||  $this->isValidDate($this->startDate, $this->endDate)) {
+            try {
+                $this->dbConnexion->saveUser($this->receiver);
+                $this->dbConnexion->saveProduct($this->product);
+                $this->dbConnexion->saveProduct($this);
+            } catch (Exception $exception) {
+                throw new Exception('There is issues during saving');
+            }
         }
-
-        // db save, void return
-        $this->dbConnexion->save($this);
     }
 
 }
