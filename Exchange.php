@@ -185,11 +185,17 @@ class Exchange
         $this->dbConnexion = $dbConnexion;
     }
 
-    public function isValidDate(DateTime $startDate, DateTime $endDate) :bool {
+    public function isValidDate() :bool {
         /** @var DateTime $now */
-        $now = date("Y-m-d H:i:s");
+        $now = new DateTime();
+        /** @var int $nowTimestamp */
+        $nowTimestamp = $now->getTimestamp();
+        /** @var int $endDateTimestamp */
+        $endDateTimestamp = $this->endDate->getTimestamp();
+        /** @var int $startDateTimestamp */
+        $startDateTimestamp = $this->startDate->getTimestamp();
 
-        if ($endDate - $startDate <= 0 || $startDate < $now){
+        if ($endDateTimestamp - $startDateTimestamp <= 0 || $this->startDate->getTimestamp() < $nowTimestamp){
             return false;
         }
 
