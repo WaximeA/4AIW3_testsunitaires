@@ -198,14 +198,18 @@ class Exchange
 
     public function save()
     {
-        if (!empty($this->receiver) || !empty($this->product) ||  $this->isValidDate($this->startDate, $this->endDate)) {
-            try {
-                $this->dbConnexion->saveUser($this->receiver);
-                $this->dbConnexion->saveProduct($this->product);
-                $this->dbConnexion->saveProduct($this);
-            } catch (Exception $exception) {
-                throw new Exception('There is issues during saving');
-            }
+        if (!empty($this->receiver) || !empty($this->product) || $this->isValidDate($this->startDate, $this->endDate)) {
+            return false;
+        }
+
+        try {
+            $this->dbConnexion->saveUser($this->receiver);
+            $this->dbConnexion->saveProduct($this->product);
+            $this->dbConnexion->saveProduct($this);
+
+            return true;
+        } catch (Exception $exception) {
+            throw new Exception('There is issues during saving');
         }
     }
 
