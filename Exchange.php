@@ -54,20 +54,14 @@ class Exchange
     /**
      * Description setReceiver function
      *
-     * @param User $receiver
+     * @param  $receiver
      *
      * @return void
      * @throws Exception
      */
     public function setReceiver(User $receiver): void
     {
-        if (!$receiver->isValid()) {
-            throw new Exception('The revceiver is not valid');
-        } elseif ($receiver->getAge() < 18) {
-            $this->emailSender->sendEmail($receiver->getEmail(), 'Your minor, that\' too bad...');
-        }
-
-        $this->receiver = $receiver;
+       $this->receiver = $receiver;
     }
 
     /**
@@ -90,11 +84,7 @@ class Exchange
      */
     public function setProduct(Product $product): void
     {
-        if (!$product->isValid()) {
-            throw new Exception('The product is not valid');
-        }
-
-        $this->product = $product;
+       $this->product = $product;
     }
 
     /**
@@ -202,20 +192,34 @@ class Exchange
         return true;
     }
 
+    public function isValid()
+    {
+        if (!$this->receiver || !$this->receiver->isValid() || !$this->product || !$this->product->isValid() || !$this->isValidDate()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function save()
     {
-        if (!empty($this->receiver) || !empty($this->product) || $this->isValidDate($this->startDate, $this->endDate)) {
+        if (!$this->isValid()) {
             return false;
         }
 
         try {
             $this->dbConnexion->saveUser($this->receiver);
             $this->dbConnexion->saveProduct($this->product);
-            $this->dbConnexion->saveProduct($this);
+            $this->dbConnexion->saveExchange($this);
+
+           if ($this->receiver->getAge() < 18) {
+                $this->emailSender->sendEmail($this->receiver->getEmail(), 'Your minor, that\' too bad...');
+            }
 
             return true;
         } catch (Exception $exception) {
-            throw new Exception('There is issues during saving');
+            // manage exception
+            return false;
         }
     }
 
